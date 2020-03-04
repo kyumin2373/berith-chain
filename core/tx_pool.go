@@ -649,6 +649,17 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 		}
 	}
 
+	// Stake Balance의 최대값을 초과하는지 체크
+	to := *tx.To()
+	stakedAmount = pool.currentState.GetStakeBalance(to)
+	totalStakingAmount = tx.Value().Add(tx.Value(), stakedAmount)
+	maximum := pool.chainconfig.Bsrr.StakeMaximum
+	if tx.Base() == types.Main && tx.Target() == types.Stake {
+		if totalStakingAmount.Cmp(maximum) >= 0 {
+			return ErrStakingBalance
+		}
+	}
+
 	return nil
 }
 

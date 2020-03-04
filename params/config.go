@@ -46,11 +46,13 @@ var (
 		BIP1Block:           big.NewInt(508000),
 		BIP2Block:           big.NewInt(545000),
 		BIP3Block:           big.NewInt(1168000),
+		BIP4Block:           big.NewInt(3000000), // 블록 번호 설정
 		Bsrr: &BSRRConfig{
 			Period:       5,
 			Epoch:        360,
 			Rewards:      common.StringToBig("360"),
 			StakeMinimum: common.StringToBig("100000000000000000000000"),
+			StakeMaximum: common.StringToBig("100000000000000000000000"), // 3천만으로 수정 필요
 			SlashRound:   0,
 			ForkFactor:   1.0,
 		},
@@ -132,12 +134,14 @@ type ChainConfig struct {
 	BIP1Block *big.Int    `json:"bip1Block,omitempty"`
 	BIP2Block *big.Int    `json:"bip2Block,omitempty"`
 	BIP3Block *big.Int    `json:"bip3Block,omitempty"`
+	BIP4Block *big.Int    `json:"bip4Block,omitempty"`
 }
 type BSRRConfig struct {
 	Period       uint64   `json:"period"`       // Number of seconds between blocks to enforce
 	Epoch        uint64   `json:"epoch"`        // Epoch length to determine stakeholder
 	Rewards      *big.Int `json:"rewards"`      // Start block number of mining reward
 	StakeMinimum *big.Int `json:"stakeminimum"` // Minimum of stake in WEI
+	StakeMaximum *big.Int `json:"stakemaximum"` // Maximum of stake in WEI
 	SlashRound   uint64   `json:"slashRound"`   // Reward after block proceed
 	ForkFactor   float64  `json:"forkfactor"`   // Number of mining candidates given stake holders
 }
@@ -217,6 +221,10 @@ func (c *ChainConfig) IsBIP2(num *big.Int) bool {
 
 func (c *ChainConfig) IsBIP3(num *big.Int) bool {
 	return isForked(c.BIP3Block, num)
+}
+
+func (c *ChainConfig) IsBIP4(num *big.Int) bool {
+	return isForked(c.BIP4Block, num)
 }
 
 func (c *ChainConfig) IsBIP1Block(num *big.Int) bool {
