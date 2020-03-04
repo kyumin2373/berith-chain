@@ -54,11 +54,12 @@ func (w *wizard) makeGenesis() {
 	// In the case of bsrr, configure the consensus parameters
 	genesis.Difficulty = big.NewInt(1)
 	genesis.Config.Bsrr = &params.BSRRConfig{
-		Period:       30,
-		Epoch:        300,
-		Rewards:      big.NewInt(500),
-		StakeMinimum: new(big.Int).Mul(big.NewInt(100000), big.NewInt(1e+18)),
-		SlashRound:   uint64(1),
+		Period:            30,
+		Epoch:             300,
+		Rewards:           big.NewInt(500),
+		StakeMinimum:      new(big.Int).Mul(common.StringToBig(params.StakeMinimum), big.NewInt(1)),
+		LimitStakeBalance: new(big.Int).Mul(common.StringToBig(params.LimitStakeBalance), big.NewInt(1)),
+		SlashRound:        uint64(1),
 	}
 
 	fmt.Println()

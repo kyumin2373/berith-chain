@@ -20,6 +20,7 @@ import (
 [BERITH]
 선출 로직 테스트
 */
+// [kyumin] 테스트 확인 필요함
 func TestSelectBlockCreator(t *testing.T) {
 	expectedResults := map[common.Address]VoteResult{
 		common.HexToAddress("0000000000000000000000000000000000000001"): VoteResult{
@@ -48,13 +49,13 @@ func TestSelectBlockCreator(t *testing.T) {
 
 	stks := staking.NewStakers()
 
-	blockNumber := big.NewInt(100)
+	blockNumber := big.NewInt(3000000)
 	eth := big.NewInt(1e+18)
-	value := new(big.Int).Mul(big.NewInt(100000), eth)
+	//value := new(big.Int).Mul(big.NewInt(100000), eth)
+	value := new(big.Int).Mul(big.NewInt(60000000), eth)
 	for i := 0; i < 5; i++ {
 
 		addr := common.BigToAddress(big.NewInt(int64(i)))
-
 		st.AddStakeBalance(addr, value, blockNumber)
 		stks.Put(addr)
 
@@ -63,14 +64,15 @@ func TestSelectBlockCreator(t *testing.T) {
 		nowBlock := blockNumber
 		stakeBlock := new(big.Int).Set(st.GetStakeUpdated(addr))
 		period := uint64(40)
+		isBIP4 := params.MainnetChainConfig.IsBIP4(big.NewInt(3000000))
+		limitStakeBalanceInBer := new(big.Int).Div(params.MainnetChainConfig.Bsrr.LimitStakeBalance, big.NewInt(1e+18))
 
-		point := staking.CalcPointBigint(prevStake, addStake, nowBlock, stakeBlock, period)
+		point := staking.CalcPointBigint(prevStake, addStake, nowBlock, stakeBlock, limitStakeBalanceInBer, period, isBIP4)
 		st.SetPoint(addr, point)
 	}
 
-	config := &params.ChainConfig{
-		BIP2Block: big.NewInt(0),
-	}
+	config := params.MainnetChainConfig
+	config.BIP2Block = big.NewInt(0)
 
 	results := SelectBlockCreator(config, blockNumber.Uint64(), common.Hash{}, stks, st)
 
