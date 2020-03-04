@@ -78,7 +78,7 @@ var (
 	// making the transaction invalid, rather a DOS protection.
 	ErrOversizedData = errors.New("oversized data")
 
-	ErrStakingBalance       = errors.New("staking balance failed")
+	ErrStakingBalance = errors.New("staking balance failed")
 	ErrInvalidStakeReceiver = errors.New("berith account only can stake token on itself")
 )
 
@@ -647,6 +647,20 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 		if totalStakingAmount.Cmp(minimum) == -1 {
 			return ErrStakingBalance
 		}
+	}
+
+	/*
+		[BERITH]
+		Stake Balance의 최대값을 초과하는지 체크
+	*/
+	to := *tx.To()
+	stakedAmount = pool.currentState.GetStakeBalance(to)
+	totalStakingAmount = new(big.Int).Add(tx.Value(), stakedAmount)
+	maximum := pool.chainconfig.Bsrr.StakeMaximum
+	isBIP4 := pool.chainconfig.IsBIP4(pool.chain.CurrentBlock().Header().Number)
+
+	if isBIP4 && tx.Target() == types.Stake && !CheckStakeBalanceAmount(totalStakingAmount, maximum) {
+		return ErrStakingBalance
 	}
 
 	return nil
