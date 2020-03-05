@@ -316,6 +316,9 @@ func (c *ChainConfig) checkCompatible(newcfg *ChainConfig, head *big.Int) *Confi
 	if isForkIncompatible(c.BIP3Block, newcfg.BIP3Block, head) {
 		return newCompatError("bip3 fork block", c.BIP3Block, newcfg.BIP3Block)
 	}
+	if isForkIncompatible(c.BIP4Block, newcfg.BIP4Block, head) {
+		return newCompatError("bip4 fork block", c.BIP4Block, newcfg.BIP4Block)
+	}
 	return nil
 }
 
