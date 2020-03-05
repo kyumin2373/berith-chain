@@ -34,7 +34,8 @@ var emptyCodeHash = crypto.Keccak256Hash(nil)
 
 type (
 	// CanTransferFunc is the signature of a transfer guard function
-	CanTransferFunc func(StateDB, common.Address, *big.Int, types.JobWallet) bool
+	CanTransferFunc  func(StateDB, common.Address, *big.Int, types.JobWallet) bool
+	CanTransferFunc2 func(StateDB, common.Address, *big.Int, types.JobWallet, types.JobWallet, *params.ChainConfig, common.Address, *big.Int) bool
 	// TransferFunc is the signature of a transfer function
 	//TransferFunc func(StateDB, common.Address, common.Address, *big.Int)
 	TransferFunc func(StateDB, common.Address, common.Address, *big.Int, *big.Int, types.JobWallet, types.JobWallet)
@@ -76,6 +77,7 @@ type Context struct {
 	// CanTransfer returns whether the account contains
 	// sufficient berith to transfer the value
 	CanTransfer CanTransferFunc
+	CanTransfer2 CanTransferFunc2
 	// Transfer transfers berith from one account to the other
 	Transfer TransferFunc
 	// GetHash returns the hash corresponding to n

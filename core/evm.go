@@ -23,6 +23,7 @@ import (
 	"github.com/BerithFoundation/berith-chain/consensus"
 	"github.com/BerithFoundation/berith-chain/core/types"
 	"github.com/BerithFoundation/berith-chain/core/vm"
+	"github.com/BerithFoundation/berith-chain/params"
 )
 
 // ChainContext supports retrieving headers and consensus parameters from the
@@ -46,6 +47,31 @@ func NewEVMContext(msg Message, header *types.Header, chain ChainContext, author
 	}
 	return vm.Context{
 		CanTransfer: CanTransfer,
+		Transfer:    Transfer,
+		GetHash:     GetHashFn(header, chain),
+		Origin:      msg.From(),
+		Coinbase:    beneficiary,
+		BlockNumber: new(big.Int).Set(header.Number),
+		Time:        new(big.Int).Set(header.Time),
+		Difficulty:  new(big.Int).Set(header.Difficulty),
+		GasLimit:    header.GasLimit,
+		GasPrice:    new(big.Int).Set(msg.GasPrice()),
+	}
+}
+/*
+	[BERITH]
+	NewEVMContext creates a new context for use in the EVM.
+*/
+func NewEVMContext2(msg Message, header *types.Header, chain ChainContext, author *common.Address, config *params.ChainConfig) vm.Context {
+	// If we don't have an explicit author (i.e. not mining), extract from the header
+	var beneficiary common.Address
+	if author == nil {
+		beneficiary, _ = chain.Engine().Author(header) // Ignore error, we're past header validation
+	} else {
+		beneficiary = *author
+	}
+	return vm.Context{
+		CanTransfer2: CanTransfer2,
 		Transfer:    Transfer,
 		GetHash:     GetHashFn(header, chain),
 		Origin:      msg.From(),
@@ -96,6 +122,31 @@ func CanTransfer(db vm.StateDB, addr common.Address, amount *big.Int, base types
 	return false
 }
 
+// CanTransfer2 checks whether there are enough funds in the address' account to make a transfer.
+// This does not take the necessary gas in to account to make the transfer valid.
+func CanTransfer2(db vm.StateDB, addr common.Address, amount *big.Int, base, target types.JobWallet, config *params.ChainConfig, recipient common.Address, blockNumber *big.Int) bool {
+	if base == types.Main {
+		return db.GetBalance(addr).Cmp(amount) >= 0
+	} else if base == types.Stake {
+		return db.GetStakeBalance(addr).Cmp(amount) >= 0
+	}
+
+	/*
+		[BERITH]
+		Stake Balance 한도값 체크
+		target, recipient, blockNumber
+	*/
+	if base == types.Main && target == types.Stake {
+		maximum := config.Bsrr.StakeMaximum
+		stakeBalance := db.GetStakeBalance(recipient)
+		totalStakingAmount := stakeBalance.Add(stakeBalance, amount)
+
+		return config.IsBIP4(blockNumber) && totalStakingAmount.Cmp(maximum) != 1
+	}
+
+	return false
+}
+
 // Transfer subtracts amount from sender and adds amount to recipient using the given Db
 func Transfer(db vm.StateDB, sender, recipient common.Address, amount, blockNumber *big.Int, base, target types.JobWallet) {
 	/*
@@ -111,7 +162,6 @@ func Transfer(db vm.StateDB, sender, recipient common.Address, amount, blockNumb
 			//베이스 지갑 차감
 			db.SubBalance(sender, amount)
 			db.AddStakeBalance(recipient, amount, blockNumber)
-
 		}
 
 		break
