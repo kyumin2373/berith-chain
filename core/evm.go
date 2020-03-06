@@ -58,6 +58,7 @@ func NewEVMContext(msg Message, header *types.Header, chain ChainContext, author
 		GasPrice:    new(big.Int).Set(msg.GasPrice()),
 	}
 }
+
 /*
 	[BERITH]
 	NewEVMContext creates a new context for use in the EVM.
@@ -72,15 +73,16 @@ func NewEVMContext2(msg Message, header *types.Header, chain ChainContext, autho
 	}
 	return vm.Context{
 		CanTransfer2: CanTransfer2,
-		Transfer:    Transfer,
-		GetHash:     GetHashFn(header, chain),
-		Origin:      msg.From(),
-		Coinbase:    beneficiary,
-		BlockNumber: new(big.Int).Set(header.Number),
-		Time:        new(big.Int).Set(header.Time),
-		Difficulty:  new(big.Int).Set(header.Difficulty),
-		GasLimit:    header.GasLimit,
-		GasPrice:    new(big.Int).Set(msg.GasPrice()),
+		Transfer:     Transfer,
+		GetHash:      GetHashFn(header, chain),
+		Origin:       msg.From(),
+		Coinbase:     beneficiary,
+		BlockNumber:  new(big.Int).Set(header.Number),
+		Time:         new(big.Int).Set(header.Time),
+		Difficulty:   new(big.Int).Set(header.Difficulty),
+		GasLimit:     header.GasLimit,
+		GasPrice:     new(big.Int).Set(msg.GasPrice()),
+		Config:       config,
 	}
 }
 
@@ -124,7 +126,7 @@ func CanTransfer(db vm.StateDB, addr common.Address, amount *big.Int, base types
 
 // CanTransfer2 checks whether there are enough funds in the address' account to make a transfer.
 // This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer2(db vm.StateDB, addr common.Address, amount *big.Int, base, target types.JobWallet, config *params.ChainConfig, recipient common.Address, blockNumber *big.Int) bool {
+func CanTransfer2(db vm.StateDB, addr common.Address, amount *big.Int, base types.JobWallet, config *params.ChainConfig, blockNumber *big.Int, target types.JobWallet, recipient common.Address) bool {
 	if base == types.Main {
 		return db.GetBalance(addr).Cmp(amount) >= 0
 	} else if base == types.Stake {
@@ -137,10 +139,11 @@ func CanTransfer2(db vm.StateDB, addr common.Address, amount *big.Int, base, tar
 		target, recipient, blockNumber
 	*/
 	if base == types.Main && target == types.Stake {
-		maximum := config.Bsrr.StakeMaximum
-		stakeBalance := db.GetStakeBalance(recipient)
-		totalStakingAmount := stakeBalance.Add(stakeBalance, amount)
-
+		var (
+			maximum = config.Bsrr.StakeMaximum
+			stakeBalance = db.GetStakeBalance(recipient)
+			totalStakingAmount = stakeBalance.Add(stakeBalance, amount)
+		)
 		return config.IsBIP4(blockNumber) && totalStakingAmount.Cmp(maximum) != 1
 	}
 
