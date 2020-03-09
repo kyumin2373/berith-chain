@@ -78,6 +78,7 @@ var (
 			Epoch:        40,
 			Rewards:      common.StringToBig("20000"),
 			StakeMinimum: common.StringToBig("100000000000000000000000"),
+			StakeMaximum: common.StringToBig("300000000000000000000000"), // 3천만으로 수정 필요
 			SlashRound:   500,
 			ForkFactor:   1.0,
 		},
