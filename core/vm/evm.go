@@ -287,8 +287,12 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 		if !evm.CanTransfer(evm.StateDB, caller.Address(), value, types.Main) {
 			return nil, gas, ErrInsufficientBalance
 		}
+
+		[ckm] target에 무엇을 줘야하는지 모르겠음.
+		[ckm] 일반 계정 간의 거래는 evm을 통해서 동작하지 않고, 스마트 컨트렉트에 대해서만 evm을 통해서 동작한다고 하는데
+	    main balance와 stake balance의 전환에 대한 체크 로직이 evm.go 쪽에 필요한 것인지?
 	*/
-	if !evm.Context.CanTransfer2(evm.StateDB, caller.Address(), value, types.Main, evm.ChainConfig(), evm.Context.BlockNumber, target, to.Address()) {
+	if !evm.Context.CanTransfer2(evm.StateDB, caller.Address(), value, types.Main, evm.ChainConfig(), evm.Context.BlockNumber, types.Main, to.Address()) {
 		return nil, gas, ErrInsufficientBalance
 	}
 
@@ -409,10 +413,13 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 		if !evm.CanTransfer(evm.StateDB, caller.Address(), value, types.Main) {
 			return nil, common.Address{}, gas, ErrInsufficientBalance
 		}
+
+		[ckm]아래 Transfer 메서드에서 사용하는 target과 recipient를 사용했는데 맞는건지 모르겠음.
 	*/
-	if !evm.Context.CanTransfer2(evm.StateDB, caller.Address(), value, types.Main, evm.ChainConfig(), evm.Context.BlockNumber, target, to.Address()) {
+	if !evm.Context.CanTransfer2(evm.StateDB, caller.Address(), value, types.Main, evm.ChainConfig(), evm.Context.BlockNumber, types.Main, address) {
 		return nil, common.Address{}, gas, ErrInsufficientBalance
 	}
+
 	nonce := evm.StateDB.GetNonce(caller.Address())
 	evm.StateDB.SetNonce(caller.Address(), nonce+1)
 

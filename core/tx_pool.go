@@ -660,6 +660,7 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 	stakedAmount = pool.currentState.GetStakeBalance(to)
 	totalStakingAmount = tx.Value().Add(tx.Value(), stakedAmount)
 	maximum := pool.chainconfig.Bsrr.StakeMaximum
+	fmt.Println("maximum = ",maximum)
 	if tx.Base() == types.Main && tx.Target() == types.Stake {
 		if totalStakingAmount.Cmp(maximum) == 1 {
 			return ErrStakingBalance

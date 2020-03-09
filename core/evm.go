@@ -82,7 +82,6 @@ func NewEVMContext2(msg Message, header *types.Header, chain ChainContext, autho
 		Difficulty:   new(big.Int).Set(header.Difficulty),
 		GasLimit:     header.GasLimit,
 		GasPrice:     new(big.Int).Set(msg.GasPrice()),
-		Config:       config,
 	}
 }
 
