@@ -59,8 +59,8 @@ const (
 
 var (
 	RewardBlock  = big.NewInt(500)
-	StakeMinimum = new(big.Int).Mul(big.NewInt(100000), big.NewInt(1e+18))
-	StakeMaximum = new(big.Int).Mul(big.NewInt(300000), big.NewInt(1e+18))
+	StakeMinimum, _ = new(big.Int).SetString(params.StakeMinimum, 0)
+	StakeMaximum, _ = new(big.Int).SetString(params.StakeMaximum, 0)
 	SlashRound   = uint64(2)
 	ForkFactor   = 1.0
 
@@ -1022,7 +1022,9 @@ func (c *BSRR) setStakersWithTxs(state *state.StateDB, chain consensus.ChainRead
 				currentBlock := header.Number
 				lastStkBlock := new(big.Int).Set(state.GetStakeUpdated(addr))
 				period := c.config.Period
-				point = staking.CalcPointBigint(prevStkBal, additionalStkBal, currentBlock, lastStkBlock, period)
+				isBIP4 := chain.Config().IsBIP4(currentBlock)
+				stakeMaximum := chain.Config().Bsrr.StakeMaximum
+				point = staking.CalcPointBigint(prevStkBal, additionalStkBal, currentBlock, lastStkBlock, stakeMaximum, period, isBIP4, )
 			}
 			state.SetPoint(addr, point)
 		}

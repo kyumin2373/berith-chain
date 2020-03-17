@@ -48,13 +48,13 @@ func TestSelectBlockCreator(t *testing.T) {
 
 	stks := staking.NewStakers()
 
-	blockNumber := big.NewInt(100)
+	blockNumber := big.NewInt(3000000)
 	eth := big.NewInt(1e+18)
-	value := new(big.Int).Mul(big.NewInt(100000), eth)
+	//value := new(big.Int).Mul(big.NewInt(100000), eth)
+	value := new(big.Int).Mul(big.NewInt(60000000), eth)
 	for i := 0; i < 5; i++ {
 
 		addr := common.BigToAddress(big.NewInt(int64(i)))
-
 		st.AddStakeBalance(addr, value, blockNumber)
 		stks.Put(addr)
 
@@ -63,14 +63,15 @@ func TestSelectBlockCreator(t *testing.T) {
 		nowBlock := blockNumber
 		stakeBlock := new(big.Int).Set(st.GetStakeUpdated(addr))
 		period := uint64(40)
+		isBIP4 := params.MainnetChainConfig.IsBIP4(big.NewInt(3000000))
+		stakeMaximum := params.MainnetChainConfig.Bsrr.StakeMaximum
 
-		point := staking.CalcPointBigint(prevStake, addStake, nowBlock, stakeBlock, period)
+		point := staking.CalcPointBigint(prevStake, addStake, nowBlock, stakeBlock, stakeMaximum, period, isBIP4)
 		st.SetPoint(addr, point)
 	}
 
-	config := &params.ChainConfig{
-		BIP2Block: big.NewInt(0),
-	}
+	config := params.MainnetChainConfig
+	config.BIP2Block = big.NewInt(0)
 
 	results := SelectBlockCreator(config, blockNumber.Uint64(), common.Hash{}, stks, st)
 

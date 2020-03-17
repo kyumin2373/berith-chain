@@ -34,10 +34,9 @@ var emptyCodeHash = crypto.Keccak256Hash(nil)
 
 type (
 	// CanTransferFunc is the signature of a transfer guard function
-	CanTransferFunc  func(StateDB, common.Address, *big.Int, types.JobWallet) bool
-	CanTransferFunc2 func(StateDB, common.Address, *big.Int, types.JobWallet, *params.ChainConfig, *big.Int, types.JobWallet, common.Address) bool
+	CanTransferFunc  func(StateDB, common.Address, *big.Int, types.JobWallet, *big.Int) bool
 	// TransferFunc is the signature of a transfer function
-	//TransferFunc func(StateDB, common.Address, common.Address, *big.Int)
+	// TransferFunc func(StateDB, common.Address, common.Address, *big.Int)
 	TransferFunc func(StateDB, common.Address, common.Address, *big.Int, *big.Int, types.JobWallet, types.JobWallet)
 	// GetHashFunc returns the nth block hash in the blockchain
 	// and is used by the BLOCKHASH EVM op code.
@@ -77,7 +76,6 @@ type Context struct {
 	// CanTransfer returns whether the account contains
 	// sufficient berith to transfer the value
 	CanTransfer CanTransferFunc
-	CanTransfer2 CanTransferFunc2
 	// Transfer transfers berith from one account to the other
 	Transfer TransferFunc
 	// GetHash returns the hash corresponding to n
@@ -198,15 +196,8 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		return nil, gas, ErrDepth
 	}
 	// Fail if we're trying to transfer more than the available balance
-
-	/*
-		[Berith]
-		Stake Balance 한도값 체크 로직을 추가하기 위해 임시로 주석 처리
-		if !evm.Context.CanTransfer(evm.StateDB, caller.Address(), value, base) {
-			return nil, gas, ErrInsufficientBalance
-		}
-	*/
-	if !evm.Context.CanTransfer2(evm.StateDB, caller.Address(), value, base, evm.ChainConfig(), evm.Context.BlockNumber, target, to.Address()) {
+	stakeMaximum := evm.chainConfig.Bsrr.StakeMaximum
+	if !evm.Context.CanTransfer(evm.StateDB, caller.Address(), value, base, stakeMaximum) {
 		return nil, gas, ErrInsufficientBalance
 	}
 
@@ -279,20 +270,8 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 		return nil, gas, ErrDepth
 	}
 	// Fail if we're trying to transfer more than the available balance
-	
-
-	/*
-		[Berith]
-		Stake Balance 한도값 체크 로직을 추가하기 위해 임시로 주석 처리
-		if !evm.CanTransfer(evm.StateDB, caller.Address(), value, types.Main) {
-			return nil, gas, ErrInsufficientBalance
-		}
-
-		[ckm] target에 무엇을 줘야하는지 모르겠음.
-		[ckm] 일반 계정 간의 거래는 evm을 통해서 동작하지 않고, 스마트 컨트렉트에 대해서만 evm을 통해서 동작한다고 하는데
-	    main balance와 stake balance의 전환에 대한 체크 로직이 evm.go 쪽에 필요한 것인지?
-	*/
-	if !evm.Context.CanTransfer2(evm.StateDB, caller.Address(), value, types.Main, evm.ChainConfig(), evm.Context.BlockNumber, types.Main, to.Address()) {
+	stakeMaximum := evm.chainConfig.Bsrr.StakeMaximum
+	if !evm.CanTransfer(evm.StateDB, caller.Address(), value, types.Main, stakeMaximum) {
 		return nil, gas, ErrInsufficientBalance
 	}
 
@@ -407,16 +386,8 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 		return nil, common.Address{}, gas, ErrDepth
 	}
 
-	/*
-		[Berith]
-		Stake Balance 한도값 체크 로직을 추가하기 위해 임시로 주석 처리
-		if !evm.CanTransfer(evm.StateDB, caller.Address(), value, types.Main) {
-			return nil, common.Address{}, gas, ErrInsufficientBalance
-		}
-
-		[ckm]아래 Transfer 메서드에서 사용하는 target과 recipient를 사용했는데 맞는건지 모르겠음.
-	*/
-	if !evm.Context.CanTransfer2(evm.StateDB, caller.Address(), value, types.Main, evm.ChainConfig(), evm.Context.BlockNumber, types.Main, address) {
+	stakeMaximum := evm.chainConfig.Bsrr.StakeMaximum
+	if !evm.CanTransfer(evm.StateDB, caller.Address(), value, types.Main, stakeMaximum) {
 		return nil, common.Address{}, gas, ErrInsufficientBalance
 	}
 

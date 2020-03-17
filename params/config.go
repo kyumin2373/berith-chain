@@ -23,6 +23,12 @@ import (
 	"github.com/BerithFoundation/berith-chain/common"
 )
 
+const (
+	// 1베리드: 1000000000000000000
+	StakeMinimum = "100000000000000000000000"   // 10만 베리드
+	StakeMaximum = "50000000000000000000000000" // 5천만 베리드
+)
+
 // Genesis hashes to enforce below configs on.
 var (
 	// MainnetGenesisHash = common.HexToHash("0x88484916701416d7f2990bed1d182c9e6001ed916e387669536f365451253cd0")
@@ -46,13 +52,13 @@ var (
 		BIP1Block:           big.NewInt(508000),
 		BIP2Block:           big.NewInt(545000),
 		BIP3Block:           big.NewInt(1168000),
-		BIP4Block:           big.NewInt(3000000), // 블록 번호 설정
+		BIP4Block:           big.NewInt(3000000), // [kyumin] 블록 번호 설정 필요
 		Bsrr: &BSRRConfig{
 			Period:       5,
 			Epoch:        360,
 			Rewards:      common.StringToBig("360"),
-			StakeMinimum: common.StringToBig("100000000000000000000000"),
-			StakeMaximum: common.StringToBig("300000000000000000000000"), // 3천만으로 수정 필요
+			StakeMinimum: common.StringToBig(StakeMinimum),
+			StakeMaximum: common.StringToBig(StakeMaximum),
 			SlashRound:   0,
 			ForkFactor:   1.0,
 		},
@@ -77,8 +83,8 @@ var (
 			Period:       5,
 			Epoch:        40,
 			Rewards:      common.StringToBig("20000"),
-			StakeMinimum: common.StringToBig("100000000000000000000000"),
-			StakeMaximum: common.StringToBig("300000000000000000000000"), // 3천만으로 수정 필요
+			StakeMinimum: common.StringToBig(StakeMinimum),
+			StakeMaximum: common.StringToBig(StakeMaximum),
 			SlashRound:   500,
 			ForkFactor:   1.0,
 		},
@@ -160,7 +166,7 @@ func (c *ChainConfig) String() string {
 	default:
 		engine = "unknown"
 	}
-	return fmt.Sprintf("{ChainID: %v Homestead: %v DAO: %v DAOSupport: %v EIP150: %v EIP155: %v EIP158: %v Byzantium: %v Constantinople: %v BIP1: %v Engine: %v}",
+	return fmt.Sprintf("{ChainID: %v Homestead: %v DAO: %v DAOSupport: %v EIP150: %v EIP155: %v EIP158: %v Byzantium: %v Constantinople: %v BIP1: %v BIP2: %v BIP3: %v BIP4: %v Engine: %v}",
 		c.ChainID,
 		c.HomesteadBlock,
 		c.DAOForkBlock,
@@ -173,6 +179,7 @@ func (c *ChainConfig) String() string {
 		c.BIP1Block,
 		c.BIP2Block,
 		c.BIP3Block,
+		c.BIP4Block,
 		engine,
 	)
 }
