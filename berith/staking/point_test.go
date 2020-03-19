@@ -39,11 +39,11 @@ func TestCalcPointBigint(t *testing.T) {
 		want *big.Int
 	}
 
-	stakeMaximum := params.MainnetChainConfig.Bsrr.StakeMaximum
+	stakeMaximum := new(big.Int).Div(params.MainnetChainConfig.Bsrr.StakeMaximum, big.NewInt(1e+18))
 
 	tests := []testData {
-		//testData{add_stake: big.NewInt(1000000), prev_stake: big.NewInt(10000000), new_block: big.NewInt(7200021), stake_block: big.NewInt(20), perioid: uint64(10), isBIP4: params.MainnetChainConfig.IsBIP4(big.NewInt(100)), want: big.NewInt(20090909)},
-		//testData{add_stake: big.NewInt(1000000), prev_stake: big.NewInt(50000000), new_block: big.NewInt(7200021), stake_block: big.NewInt(20), perioid: uint64(10), isBIP4: params.MainnetChainConfig.IsBIP4(big.NewInt(100)), want: big.NewInt(100019607)},
+		testData{add_stake: big.NewInt(1000000), prev_stake: big.NewInt(10000000), new_block: big.NewInt(7200021), stake_block: big.NewInt(20), perioid: uint64(10), isBIP4: params.MainnetChainConfig.IsBIP4(big.NewInt(100)), want: big.NewInt(20090909)},
+		testData{add_stake: big.NewInt(1000000), prev_stake: big.NewInt(50000000), new_block: big.NewInt(7200021), stake_block: big.NewInt(20), perioid: uint64(10), isBIP4: params.MainnetChainConfig.IsBIP4(big.NewInt(100)), want: big.NewInt(100019607)},
 		testData{add_stake: big.NewInt(1000000), prev_stake: big.NewInt(50000000), new_block: big.NewInt(7200021), stake_block: big.NewInt(20), perioid: uint64(10), isBIP4: params.MainnetChainConfig.IsBIP4(big.NewInt(3000000)), want: big.NewInt(99019607)},
 	}
 
@@ -55,7 +55,6 @@ func TestCalcPointBigint(t *testing.T) {
 	}
 }
 
-// [kyumin] 테스트 재확인
 func TestCheckMaxStakeBalance(t *testing.T) {
 	type testData struct {
 		point *big.Int

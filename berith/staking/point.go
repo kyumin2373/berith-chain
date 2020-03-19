@@ -45,7 +45,7 @@ func CalcPointUint(pStake, addStake, now_block, stake_block *big.Int, period uin
 	return uint64(result)
 }
 
-func CalcPointBigint(pStake, addStake, now_block, stake_block, stakeMaximum *big.Int, period uint64, isBIP4 bool) *big.Int {
+func CalcPointBigint(pStake, addStake, now_block, stake_block, stakeMaximumInBer *big.Int, period uint64, isBIP4 bool) *big.Int {
 	p := pStake //이전스테이킹
 	n := addStake //추가스테이킹
 	s := stake_block //이전 스테이킹 블록넘버
@@ -68,6 +68,7 @@ func CalcPointBigint(pStake, addStake, now_block, stake_block, stakeMaximum *big
 		ratio = big.NewFloat(100)
 	}
 
+
 	temp1 := new(big.Float).Quo(new(big.Float).SetInt(p), new(big.Float).Add(new(big.Float).SetInt(p), new(big.Float).SetInt(n)))
 	temp2 := new(big.Float).Mul(new(big.Float).SetInt(p), temp1)
 	temp3 := new(big.Float).Mul(temp2, ratio)
@@ -80,7 +81,7 @@ func CalcPointBigint(pStake, addStake, now_block, stake_block, stakeMaximum *big
 	*/
 	r1 := new(big.Int).Add(p, n)
 	if isBIP4 {
-		r1 = checkMaxStakeBalance(r1, stakeMaximum)
+		r1 = checkMaxStakeBalance(r1, stakeMaximumInBer)
 	}
 
 	//result := p + adv + n
@@ -124,9 +125,9 @@ func CalcAdvForExceededPoint(nowBlockNumber, stakeBlockNumber *big.Int, period u
 	[Berith]
 	BIP4에서 Stake Balance의 한도를 설정한 것과 관련하여 Selection Point 또한 한도를 갖도록 설정
 */
-func checkMaxStakeBalance(stake, stakeMaximum *big.Int ) *big.Int {
-	if stake.Cmp(stakeMaximum) == 1 {
-		return stakeMaximum
+func checkMaxStakeBalance(stake, stakeMaximumInBer *big.Int ) *big.Int {
+	if stake.Cmp(stakeMaximumInBer) == 1 {
+		return stakeMaximumInBer
 	}
 	return stake
 }
