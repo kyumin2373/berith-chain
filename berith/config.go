@@ -30,6 +30,8 @@ import (
 	"github.com/BerithFoundation/berith-chain/params"
 )
 
+var UnitForBer = big.NewInt(1e+18) // Unit to make wei to ber
+
 var DefaultConfig = Config{
 	SyncMode:       downloader.FullSync,
 	NetworkId:      101,

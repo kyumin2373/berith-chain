@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/BerithFoundation/berith-chain/berith"
 	"math/big"
 	"os"
 	"strconv"
@@ -235,7 +236,7 @@ func exportAccount(ctx *cli.Context) error {
 					break
 				}
 
-				balance := new(big.Int).Mul(big.NewInt(int64(token)), big.NewInt(1e+18))
+				balance := new(big.Int).Mul(big.NewInt(int64(token)), berith.UnitForBer)
 
 				for _, acc := range ks.Accounts() {
 					result[acc.Address.Hex()[2:]] = alloc{Balance: balance.String()}
@@ -256,7 +257,7 @@ func exportAccount(ctx *cli.Context) error {
 					break
 				}
 
-				balance := new(big.Int).Mul(big.NewInt(int64(token)), big.NewInt(1e+18))
+				balance := new(big.Int).Mul(big.NewInt(int64(token)), berith.UnitForBer)
 
 				for _, acc := range ks.Accounts() {
 					fmt.Printf("common.HexToAddress(\"%s\"): {Balance: common.StringToBig(\"%s\")},\n", acc.Address.Hex(), balance.String())
@@ -503,7 +504,7 @@ func (agent *agent) transferLoop(url string, index int, ch chan bool) {
 			if txType == contractCall {
 				value = big.NewInt(int64(agent.cfg.ContractValue))
 			}
-			value.Mul(value, big.NewInt(1e+18))
+			value.Mul(value, berith.UnitForBer)
 
 			txData := make([]byte, 0)
 			if txType == contractCall {
