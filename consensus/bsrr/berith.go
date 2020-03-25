@@ -1086,7 +1086,7 @@ func (c *BSRR) getSigners(chain consensus.ChainReader, target *types.Header) (si
 	}
 
 	result := list.AsList()
-	if len(result) <= 0 {
+	if len(result) == 0 {
 		return make([]common.Address, 0), nil
 	}
 	return result, nil
