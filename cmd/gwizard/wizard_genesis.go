@@ -31,8 +31,9 @@ import (
 	"github.com/BerithFoundation/berith-chain/core"
 	"github.com/BerithFoundation/berith-chain/log"
 	"github.com/BerithFoundation/berith-chain/params"
-	"github.com/BerithFoundation/berith-chain/berith"
 )
+
+var unitForBer = big.NewInt(1e+18)
 
 // makeGenesis creates a new genesis struct based on some user input.
 func (w *wizard) makeGenesis() {
@@ -58,7 +59,7 @@ func (w *wizard) makeGenesis() {
 		Period:       30,
 		Epoch:        300,
 		Rewards:      big.NewInt(500),
-		StakeMinimum: new(big.Int).Mul(big.NewInt(100000), berith.UnitForBer),
+		StakeMinimum: new(big.Int).Mul(big.NewInt(100000), unitForBer),
 		SlashRound:   uint64(1),
 	}
 

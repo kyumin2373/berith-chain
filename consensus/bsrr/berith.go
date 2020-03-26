@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/BerithFoundation/berith-chain/berith"
 	"math"
 	"math/big"
 	"sync"
@@ -59,8 +58,9 @@ const (
 )
 
 var (
+	unitForBer = big.NewInt(1e+18)
 	RewardBlock  = big.NewInt(500)
-	StakeMinimum = new(big.Int).Mul(big.NewInt(100000), berith.UnitForBer)
+	StakeMinimum = new(big.Int).Mul(big.NewInt(100000), unitForBer)
 	SlashRound   = uint64(2)
 	ForkFactor   = 1.0
 
@@ -1017,8 +1017,8 @@ func (c *BSRR) setStakersWithTxs(state *state.StateDB, chain consensus.ChainRead
 			point := big.NewInt(0)
 			currentStkBal := state.GetStakeBalance(addr)
 			if currentStkBal.Cmp(big.NewInt(0)) == 1 {
-				currentStkBal = new(big.Int).Div(currentStkBal, berith.UnitForBer)
-				prevStkBal := new(big.Int).Div(prevState.GetStakeBalance(addr), berith.UnitForBer)
+				currentStkBal = new(big.Int).Div(currentStkBal, unitForBer)
+				prevStkBal := new(big.Int).Div(prevState.GetStakeBalance(addr), unitForBer)
 				additionalStkBal := new(big.Int).Sub(currentStkBal, prevStkBal)
 				currentBlock := header.Number
 				lastStkBlock := new(big.Int).Set(state.GetStakeUpdated(addr))

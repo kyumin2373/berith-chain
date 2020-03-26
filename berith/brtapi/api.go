@@ -10,7 +10,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/BerithFoundation/berith-chain/berith"
 	"strconv"
 
 	"github.com/BerithFoundation/berith-chain/accounts/keystore"
@@ -28,6 +27,8 @@ import (
 	"github.com/BerithFoundation/berith-chain/log"
 	// "github.com/BerithFoundation/berith-chain/berith/stake"
 )
+
+var unitForBer = big.NewInt(1e+18)
 
 //PrivateBerithAPI struct of berith private apis
 type PrivateBerithAPI struct {
@@ -183,7 +184,7 @@ func (s *PrivateBerithAPI) Stake(ctx context.Context, args WalletTxArgs) (common
 
 	if config := s.backend.ChainConfig(); config.IsEIP155(s.backend.CurrentBlock().Number()) {
 		if totalStakingAmount.Cmp(config.Bsrr.StakeMinimum) <= -1 {
-			minimum := new(big.Int).Div(config.Bsrr.StakeMinimum, berith.UnitForBer)
+			minimum := new(big.Int).Div(config.Bsrr.StakeMinimum, unitForBer)
 
 			log.Error("The minimum number of stakes is " + strconv.Itoa(int(minimum.Uint64())))
 			return common.Hash{}, errors.New("staking balance failed")
