@@ -16,8 +16,6 @@ import (
 	"github.com/BerithFoundation/berith-chain/core/state"
 )
 
-var unitForBer = big.NewInt(1e+18)
-
 /*
 [BERITH]
 선출 로직 테스트
@@ -51,7 +49,7 @@ func TestSelectBlockCreator(t *testing.T) {
 	stks := staking.NewStakers()
 
 	blockNumber := big.NewInt(100)
-	value := new(big.Int).Mul(big.NewInt(100000), unitForBer)
+	value := new(big.Int).Mul(big.NewInt(100000), common.UnitForBer)
 	for i := 0; i < 5; i++ {
 
 		addr := common.BigToAddress(big.NewInt(int64(i)))
@@ -59,8 +57,8 @@ func TestSelectBlockCreator(t *testing.T) {
 		st.AddStakeBalance(addr, value, blockNumber)
 		stks.Put(addr)
 
-		prevStake := new(big.Int).Div(st.GetStakeBalance(addr), unitForBer)
-		addStake := new(big.Int).Div(value, unitForBer)
+		prevStake := new(big.Int).Div(st.GetStakeBalance(addr), common.UnitForBer)
+		addStake := new(big.Int).Div(value, common.UnitForBer)
 		nowBlock := blockNumber
 		stakeBlock := new(big.Int).Set(st.GetStakeUpdated(addr))
 		period := uint64(40)

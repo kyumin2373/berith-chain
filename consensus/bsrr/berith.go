@@ -58,9 +58,8 @@ const (
 )
 
 var (
-	unitForBer = big.NewInt(1e+18)
 	RewardBlock  = big.NewInt(500)
-	StakeMinimum = new(big.Int).Mul(big.NewInt(100000), unitForBer)
+	StakeMinimum = new(big.Int).Mul(big.NewInt(100000), common.UnitForBer)
 	SlashRound   = uint64(2)
 	ForkFactor   = 1.0
 
@@ -70,9 +69,6 @@ var (
 	extraSeal   = 65 // Fixed number of extra-data suffix bytes reserved for signer seal
 
 	uncleHash = types.CalcUncleHash(nil) // Always Keccak256(RLP([])) as uncles are meaningless outside of PoW.
-
-	//diffInTurn = big.NewInt(20000000) // Block difficulty for in-turn signatures
-	//diffNoTurn = big.NewInt(10000000) // Block difficulty for out-of-turn signatures
 
 	diffWithoutStaker = int64(1234)
 )
@@ -1028,8 +1024,8 @@ func (c *BSRR) setStakersWithTxs(state *state.StateDB, chain consensus.ChainRead
 			point := big.NewInt(0)
 			currentStkBal := state.GetStakeBalance(addr)
 			if currentStkBal.Cmp(big.NewInt(0)) == 1 {
-				currentStkBal = new(big.Int).Div(currentStkBal, unitForBer)
-				prevStkBal := new(big.Int).Div(prevState.GetStakeBalance(addr), unitForBer)
+				currentStkBal = new(big.Int).Div(currentStkBal, common.UnitForBer)
+				prevStkBal := new(big.Int).Div(prevState.GetStakeBalance(addr), common.UnitForBer)
 				additionalStkBal := new(big.Int).Sub(currentStkBal, prevStkBal)
 				currentBlock := header.Number
 				lastStkBlock := new(big.Int).Set(state.GetStakeUpdated(addr))
