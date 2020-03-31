@@ -248,7 +248,7 @@ func New(config *params.BSRRConfig, db berithdb.Database) *BSRR {
 
 	recents, _ := lru.NewARC(inmemorySnapshots)
 	signatures, _ := lru.NewARC(inmemorySignatures)
-	//[BERITH] 캐쉬 인스턴스 생성및 사이즈 지정
+	//[BERITH] 캐쉬 인스턴스 생성 및 사이즈 지정
 	cache, _ := lru.NewARC(inmemorySigners)
 
 	return &BSRR{
@@ -332,7 +332,7 @@ func (c *BSRR) verifyHeader(chain consensus.ChainReader, header *types.Header, p
 	if !checkpoint && signersBytes != 0 {
 		return errExtraSigners
 	}
-	if checkpoint && signersBytes%common.AddressLength != 0 {
+	if checkpoint && signersBytes % common.AddressLength != 0 {
 		return errInvalidCheckpointSigners
 	}
 	// Ensure that the mix digest is zero as we don't have fork protection currently
@@ -357,6 +357,7 @@ func (c *BSRR) verifyHeader(chain consensus.ChainReader, header *types.Header, p
 	//		return errInvalidDifficulty
 	//	}
 	//}
+
 	// If all checks passed, validate any special fields for hard forks
 	if err := misc.VerifyForkHashes(chain.Config(), header, false); err != nil {
 		return err
@@ -388,7 +389,6 @@ func (c *BSRR) verifyCascadingFields(chain consensus.ChainReader, header *types.
 	if parent.Time.Uint64()+c.config.Period > header.Time.Uint64() {
 		return ErrInvalidTimestamp
 	}
-	// TODO : Check environments that have different time server
 	delayed, err := c.getDelay(int(header.Nonce.Uint64()))
 	if err != nil {
 		return ErrInvalidTimestamp
@@ -885,7 +885,7 @@ func (c *BSRR) supportBIP1(chain consensus.ChainReader, parent *types.Header, st
 	c.cache.Add(parent.Hash(), bytes)
 	err = c.stakingDB.Commit(parent.Hash().Hex(), stks)
 	if err != nil {
-		return stks, err
+		return nil, err
 	}
 
 	return stks, nil
@@ -959,7 +959,7 @@ func (c *BSRR) getStakers(chain consensus.ChainReader, number uint64, hash commo
 	c.cache.Add(hash, bytes)
 	err = c.stakingDB.Commit(hash.Hex(), list)
 	if err != nil {
-		return list, err
+		return nil, err
 	}
 
 	return list, nil
